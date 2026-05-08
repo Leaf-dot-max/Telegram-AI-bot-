@@ -12,7 +12,7 @@ HF_TOKEN = os.environ['HF_TOKEN']
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 # Hugging Face model settings
-API_URL = "https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct"
+ API_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 def ask_ai(prompt):
