@@ -19,7 +19,7 @@ bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 # Use the Chat Completions endpoint with a free model
 API_URL = "https://router.huggingface.co/v1/chat/completions"
-MODEL = MODEL = "HuggingFaceTB/SmolLM3-1.7B-Instruct"  # Free, no license needed
+ MODEL = "katanemo/Arch-Router-1.5B:hf-inference"  # Free, no license needed
 
 HEADERS = {
     "Authorization": f"Bearer {HF_TOKEN}",
