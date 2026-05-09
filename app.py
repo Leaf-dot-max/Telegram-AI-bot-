@@ -17,28 +17,26 @@ except KeyError as e:
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 # Works with fine‑grained tokens + the new Router
-API_URL = "https://router.huggingface.co/hf-inference/models/gpt2"
+API_URL = API_URL = "https://router.huggingface.co/hf-inference/models/google/flan-t5-large"
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 def ask_ai(prompt):
     try:
-        payload = {
-            "inputs": prompt,
-            "parameters": {"max_new_tokens": 150}
-        }
+        payload = {"inputs": prompt, "parameters": {"max_new_tokens": 150}}
         response = requests.post(API_URL, headers=HEADERS, json=payload)
         if response.ok:
             result = response.json()
+            # Handle the response format (list or dict)
             if isinstance(result, list) and len(result) > 0:
                 return result[0]["generated_text"].strip()
             elif isinstance(result, dict) and "generated_text" in result:
                 return result["generated_text"].strip()
             else:
-                return "Unexpected response. Check logs."
+                return str(result).strip()
         else:
-            err_msg = f"HF error {response.status_code}: {response.text}"
-            print(err_msg, flush=True)
-            return err_msg
+            error_msg = f"HF error {response.status_code}: {response.text}"
+            print(error_msg, flush=True)
+            return error_msg
     except Exception as e:
         print(traceback.format_exc(), flush=True)
         return f"Exception: {str(e)}"
