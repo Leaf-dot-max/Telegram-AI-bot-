@@ -27,7 +27,6 @@ def ask_ai(prompt):
         response = requests.post(API_URL, headers=HEADERS, json=payload)
         if response.ok:
             result = response.json()
-            # DialoGPT returns {"generated_text": "..."}
             if isinstance(result, list):
                 return result[0]["generated_text"].strip()
             elif isinstance(result, dict) and "generated_text" in result:
