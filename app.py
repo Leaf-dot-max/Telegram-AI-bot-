@@ -7,7 +7,6 @@ import telebot
 
 app = Flask(__name__)
 
-# Load secrets
 try:
     TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
     HF_TOKEN = os.environ['HF_TOKEN']
@@ -17,30 +16,29 @@ except KeyError as e:
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
-# NEW working API endpoint (free, no license for this model)
-API_URL = "https://router.huggingface.co/v1/chat/completions"
+# Works with fine‑grained tokens + the new Router
+API_URL = "https://router.huggingface.co/hf-inference/models/gpt2"
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 def ask_ai(prompt):
     try:
-        # Updated payload structure for the new API
         payload = {
-            "model": "mistralai/Mistral-7B-Instruct-v0.2",
-            "messages": [{"role": "user", "content": prompt}],
-            "max_tokens": 500
+            "inputs": prompt,
+            "parameters": {"max_new_tokens": 150}
         }
-        
         response = requests.post(API_URL, headers=HEADERS, json=payload)
-        
         if response.ok:
             result = response.json()
-            # The new API returns the answer in a different way
-            return result["choices"][0]["message"]["content"].strip()
+            if isinstance(result, list) and len(result) > 0:
+                return result[0]["generated_text"].strip()
+            elif isinstance(result, dict) and "generated_text" in result:
+                return result["generated_text"].strip()
+            else:
+                return "Unexpected response. Check logs."
         else:
-            # This will show us the real error if something is still wrong
-            error_msg = f"HF error {response.status_code}: {response.text}"
-            print(error_msg, flush=True)
-            return error_msg
+            err_msg = f"HF error {response.status_code}: {response.text}"
+            print(err_msg, flush=True)
+            return err_msg
     except Exception as e:
         print(traceback.format_exc(), flush=True)
         return f"Exception: {str(e)}"
