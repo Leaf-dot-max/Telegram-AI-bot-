@@ -17,7 +17,7 @@ except KeyError as e:
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 # Works with fine‑grained tokens + the new Router
-API_URL = API_URL = "https://router.huggingface.co/hf-inference/models/google/flan-t5-large"
+API_URL="https://router.huggingface.co/hf-inference/models/google/flan-t5-large"
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 def ask_ai(prompt):
