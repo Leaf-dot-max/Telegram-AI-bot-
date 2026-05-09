@@ -17,25 +17,27 @@ except KeyError as e:
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
-# Using DialoGPT – no license needed
-API_URL ="https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
+# NEW working API endpoint (free, no license for this model)
+API_URL = "https://api-inference.huggingface.co/models/HuggingFaceTB/SmolLM3-1.7B-Instruct"
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 def ask_ai(prompt):
     try:
-        payload = {"inputs": prompt, "parameters": {"max_new_tokens": 150}}
+        payload = {
+            "inputs": prompt,
+            "parameters": {"max_new_tokens": 200}
+        }
         response = requests.post(API_URL, headers=HEADERS, json=payload)
         if response.ok:
             result = response.json()
-            if isinstance(result, list):
+            # The new API can return a list or dict with "generated_text"
+            if isinstance(result, list) and len(result) > 0:
                 return result[0]["generated_text"].strip()
             elif isinstance(result, dict) and "generated_text" in result:
                 return result["generated_text"].strip()
             else:
-                # If the response structure is unexpected, show it raw
-                return str(result).strip()
+                return "Unexpected response format. Check logs."
         else:
-            # SEND THE ERROR DIRECTLY TO TELEGRAM
             error_msg = f"HF error {response.status_code}: {response.text}"
             print(error_msg, flush=True)
             return error_msg
