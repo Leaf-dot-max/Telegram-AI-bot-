@@ -18,26 +18,26 @@ except KeyError as e:
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 # NEW working API endpoint (free, no license for this model)
-API_URL = "https://api-inference.huggingface.co/models/HuggingFaceTB/SmolLM3-1.7B-Instruct"
+API_URL = "https://router.huggingface.co/v1/chat/completions"
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 def ask_ai(prompt):
     try:
+        # Updated payload structure for the new API
         payload = {
-            "inputs": prompt,
-            "parameters": {"max_new_tokens": 200}
+            "model": "mistralai/Mistral-7B-Instruct-v0.2",
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": 500
         }
+        
         response = requests.post(API_URL, headers=HEADERS, json=payload)
+        
         if response.ok:
             result = response.json()
-            # The new API can return a list or dict with "generated_text"
-            if isinstance(result, list) and len(result) > 0:
-                return result[0]["generated_text"].strip()
-            elif isinstance(result, dict) and "generated_text" in result:
-                return result["generated_text"].strip()
-            else:
-                return "Unexpected response format. Check logs."
+            # The new API returns the answer in a different way
+            return result["choices"][0]["message"]["content"].strip()
         else:
+            # This will show us the real error if something is still wrong
             error_msg = f"HF error {response.status_code}: {response.text}"
             print(error_msg, flush=True)
             return error_msg
