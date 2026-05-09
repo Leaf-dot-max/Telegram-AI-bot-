@@ -18,7 +18,7 @@ except KeyError as e:
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 # Using DialoGPT – no license needed
-API_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
+API_URL ="https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 def ask_ai(prompt):
