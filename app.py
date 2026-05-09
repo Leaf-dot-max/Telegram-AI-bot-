@@ -7,6 +7,7 @@ import telebot
 
 app = Flask(__name__)
 
+# Load secrets
 try:
     TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
     HF_TOKEN = os.environ['HF_TOKEN']
@@ -16,27 +17,33 @@ except KeyError as e:
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
-# Works with fine‑grained tokens + the new Router
-API_URL="https://router.huggingface.co/hf-inference/models/google/flan-t5-large"
-HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
+# Use the Chat Completions endpoint with a free model
+API_URL = "https://router.huggingface.co/v1/chat/completions"
+MODEL = "mistralai/Mistral-7B-Instruct-v0.2"  # Free, no license needed
+
+HEADERS = {
+    "Authorization": f"Bearer {HF_TOKEN}",
+    "Content-Type": "application/json"
+}
 
 def ask_ai(prompt):
     try:
-        payload = {"inputs": prompt, "parameters": {"max_new_tokens": 150}}
+        payload = {
+            "model": MODEL,
+            "messages": [
+                {"role": "user", "content": prompt}
+            ],
+            "max_tokens": 500
+        }
         response = requests.post(API_URL, headers=HEADERS, json=payload)
         if response.ok:
             result = response.json()
-            # Handle the response format (list or dict)
-            if isinstance(result, list) and len(result) > 0:
-                return result[0]["generated_text"].strip()
-            elif isinstance(result, dict) and "generated_text" in result:
-                return result["generated_text"].strip()
-            else:
-                return str(result).strip()
+            # Chat completions response has choices[0].message.content
+            return result["choices"][0]["message"]["content"].strip()
         else:
-            error_msg = f"HF error {response.status_code}: {response.text}"
-            print(error_msg, flush=True)
-            return error_msg
+            err_msg = f"HF error {response.status_code}: {response.text}"
+            print(err_msg, flush=True)
+            return err_msg
     except Exception as e:
         print(traceback.format_exc(), flush=True)
         return f"Exception: {str(e)}"
