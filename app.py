@@ -32,13 +32,16 @@ def ask_ai(prompt):
             elif isinstance(result, dict) and "generated_text" in result:
                 return result["generated_text"].strip()
             else:
+                # If the response structure is unexpected, show it raw
                 return str(result).strip()
         else:
-            print(f"HF error: {response.status_code} - {response.text}", file=sys.stderr)
-            return f"Sorry, AI error (status {response.status_code})."
-    except Exception:
-        traceback.print_exc()
-        return "Internal error. Check logs."
+            # SEND THE ERROR DIRECTLY TO TELEGRAM
+            error_msg = f"HF error {response.status_code}: {response.text}"
+            print(error_msg, flush=True)
+            return error_msg
+    except Exception as e:
+        print(traceback.format_exc(), flush=True)
+        return f"Exception: {str(e)}"
 
 @app.route(f"/{TELEGRAM_TOKEN}", methods=["POST"])
 def webhook():
